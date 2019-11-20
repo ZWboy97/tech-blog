@@ -1,5 +1,6 @@
 ---
 title: {{ title }}
+categories: [技术]
 tags:
 ---
 

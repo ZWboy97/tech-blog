@@ -1,6 +1,7 @@
 ---
 title: BroswerRouter以及HashRouter的React前端项目在Nginx上部署
 date: 2019-09-28 13:43:12
+categories: [技术]
 tags: 
 - React 
 - Nginx

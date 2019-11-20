@@ -2,6 +2,7 @@
 title: {{ title }}
 date: {{ date }}
 tags:
+categories: [技术]
 ---
 
 > 背景知识

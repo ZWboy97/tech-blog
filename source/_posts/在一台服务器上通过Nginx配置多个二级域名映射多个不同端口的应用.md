@@ -1,7 +1,9 @@
 ---
-title: 在一台服务器上通过Nginx配置多个二级域名映射多个不同端口的应用
+title: 在一台服务器上通过Nginx反向代理配置多个二级域名映射多个不同端口的应用
 date: 2019-09-21 23:35:32
-tags: Nginx
+tags: 
+ - Nginx
+ - 反向代理
 categories: [技术]
 comments: true
 ---
@@ -19,12 +21,13 @@ comments: true
 # 配置文件路径：/etc/nginx/conf.d/domain.conf，（没有的话需要创建）
 # Nginx会自动include /etc/nginx/conf.d 目录下所有以.conf结尾的配置到主配置文件nginx.conf中.
 
+# 起一个服务，端口80
 server {
         listen 80;  # 设置Nginx对外监听80端口
         server_name *.domain.cn;  # 绑定到该服务器的域名
-                if ( $http_host ~* "^(.*?)\.domain\.cn" ) {  # 对http_host进行正则匹配，解析domain
-                        set $domain $1;
-                }
+        if ( $http_host ~* "^(.*?)\.domain\.cn" ) {  # 对http_host进行正则匹配，解析domain
+                set $domain $1;
+        }
         location / {
                 proxy_set_header        X-Real-IP       $remote_addr;
                 proxy_set_header        Host            $http_host;
@@ -50,6 +53,37 @@ sudo nginx -t
 ```bash
 sudo nginx -s reload
 ```
+
+#### 负载均衡
+- 可以为多个相同的后端服务在反向代理的同时实现负载均衡
+
+```bash
+# 配置jenkins负载均衡
+upstream jenkins {      # 默认负载均衡规则为轮询 
+      server      http://localhost:9090 weight = 5;      # 可以设置权重
+      server      http://10.10.x.x:9090 weight = 1;
+}
+
+server {
+        listen 80;  # 设置Nginx对外监听80端口
+        server_name *.domain.cn;  # 绑定到该服务器的域名
+        if ( $http_host ~* "^(.*?)\.domain\.cn" ) {  # 对http_host进行正则匹配，解析domain
+                set $domain $1;
+        }
+        location / {
+                proxy_set_header        X-Real-IP       $remote_addr;
+                proxy_set_header        Host            $http_host;     # 不可缺，否则无法代理
+                # 分别处理各个domain
+                if ( $domain ~* "gitlab" ) {
+                        proxy_pass http://jenkins;
+                }
+                if ( $domain ~* "jenkins" ) {
+                        proxy_pass http://localhost:9090;
+                }
+        }
+}
+```
+
 #### 踩坑
 最开始的思路是在Nginx中配置多个server块，再每个块中再配置proxy_pass来实现，配置文件如下。
 ```bash

@@ -1,7 +1,6 @@
 ---
 title: 前端JavaScript系统梳理
-categories:
-  - 技术
+categories: [技术]
 tags:
   - [前端]
   - [JavaScript]
@@ -358,5 +357,4 @@ map.put('c',3);
 ```
 
 - asyncy异步编程
-### 总结
-内容
+### 未完待续
