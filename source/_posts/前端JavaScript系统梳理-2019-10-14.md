@@ -1,6 +1,9 @@
 ---
-title: 前端JavaScript系统梳理
-categories: [技术]
+title: 大脑Cahce系列--前端JavaScript系统梳理
+categories:
+  - [技术]
+  - [大脑Cache]
+
 tags:
   - [前端]
   - [JavaScript]
@@ -26,6 +29,9 @@ date: 2019-10-14 19:28:16
   - 让代码变得更可靠
   - 使用方式：全局使用，局部使用（在方法中使用）
   - 推荐编写代码的时候使用严格模式
+
+<!--more-->
+
 - 语句
   - 表达式语句：习惯---最好以分号结尾
   - 流控制语句：for-in, with

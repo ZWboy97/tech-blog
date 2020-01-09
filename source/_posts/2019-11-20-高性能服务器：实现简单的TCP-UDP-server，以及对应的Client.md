@@ -19,6 +19,8 @@ date: 2019-11-20 19:57:20
 - send():使用send发送数据
 - close():使用close关闭连接
 
+<!--more-->
+
 ##### TCP常见套接字选项
 - SO_REUSEADDR: 地址重用
     - 之前程序结束，端口处于WAIT_TIME状态下，新启动的程序仍然可以启动
