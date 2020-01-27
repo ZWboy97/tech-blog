@@ -18,7 +18,7 @@ date: 2020-01-06 15:50:06
 - Java反射
 - Java接口
 - Lambda表达式
-- Java异常处理
+- Java异常
 - Java并发
 
 <!--more-->
@@ -118,3 +118,156 @@ if(child instanceof Manager){ // 不需要判null
 - 5.一次判断各个数据域是否相等
 - **记得还要检查下hashcode是否要也要重写哦**
 
+##### 泛型数组 ArrayList<Type>
+- 普通数组无法再运行时更改数组的大小，可以使用泛型数组库，ArrayList
+
+```java
+ArrayList<MyClass> arrayList = new ArrayList();
+```
+- Java老版本中的Vector也可以实现动态数组，但没ArrayList有效。
+- add(),向数组中添加一个元素，如果容量不够，会自动扩展
+- ArrayList不支持数组的[]访问方式
+- get(index),获取数组中index位置的元素
+- set(index,item),替换数组中的某个元素
+- size()，类似数组的length
+- arrayList.ensureCapacity(100),预分配100大小的数组
+- trimToSize(),当保证不再向数组中添加元素了，调用将释放多余分配的空间
+- arrayList.toArray(array),为了方便数组的访问，可以通过ArrayList构造，然后转换成普通数组并处理
+
+```java
+// 一种很好的实践
+ArrayList<X> list = new ArrayList<>();
+// add item to list
+X[] a = new X[list.size()];
+list.toArray(a);
+```
+
+##### 对象包装器与自动装箱
+- 基本类型都有对应的类，Integer, Double,Boolean,Character，Void等
+- 他们的超类为Number
+- **一旦包装器创建了，就不允许更改包装在其中的值了**
+- 自动装箱和自动拆箱：能在基础类型和对应的类之间自动转换，这是由Java编译器实现的，添加了装箱拆箱语句
+- **Java的==号检测的是两个变量指向的地址是否相同**，所以不同于基础类型，装箱后要用equals方法来判断值是否相等（他们重写了equals方法）
+- 字符串Int转换：`int x = Integer.paseInt("1")`或者`Integer.valueOf("100")`
+
+##### 参数可变的方法
+- Java方法的参数数目可以是可变的
+- 省略号`...`,可以出现在参数列表的最后，**其实和数组的效果的类似的**
+
+```java
+printf(String fmt, Object...args);
+```
+
+### 反射
+> Java反射机制能够在程序运行时，对于任意一个类，都能够知道这个类的所有属性和方法。对于任意一个对象，在有权限的情况下，能够调用方法和属性。即，动态获取信息以及动态调用对象方法的机制。
+- 反射，能够分析类能力，能够动态操纵Java代码
+- 主要用户工具构造，在实际的应用中使用不多(也不建议在应用应用开发中过多使用)
+- Class类，Java运行时系统为每个类维护一个Class类
+- getClass(),Name.class
+
+### 接口
+- 接口，用来描述类具有什么功能，不需要具体实现方法
+- 但如果某个类尊从了某个接口，那么就必须要履行对应的服务（实现接口）
+- **接口中所有方法都自动是public，不需要额外加public修饰符（但在实现接口的类中，方法前必须加public）**，因为要能被任意类实现呀
+- 接口中**不能含有实例域（接口没有实例）**，但可以含有**常量**，对于方法，**接口中不能提供实现**
+- 接口不是类，不能通过new被实例化。
+- 但是存在**接口变量，且接口变量可以引用实现了它的类的对象**。
+- 接口之间也是支持继承的
+
+
+```java
+public interface Comparable { // java.lang.Comparable
+  int compareTo(Object obj);
+}
+
+public Test implements Comparable {
+  public int compareTo(Object obj) { // 实现类时候，需要public
+    return Double.compare(salary,obj.salary); // 相减比较不适合浮点数
+  }
+}
+```
+
+- Java常用的内置接口
+  - Compalrable
+  - Cloneable
+
+- 接口的意义在于统一服务的对外接口：Java是一种强类型语言，使用接口来解决类型的问题，编译器不需要再执行的时候进行类型检查（因为编译器认为只要这个类实现了这个接口，就一定能处理）
+
+- 接口与继承（抽象类）
+  - Java不支持多继承，因为多继承会使语言更复杂
+  - Java通过接口来实现多继承，一个类可以实现多个接口
+- Java8之后，接口中可以存在静态方法并实现之了，目的是，这样就可以避免某些工具类必须要提供伴随类了。
+- 默认方法：
+  - 在我们实现接口的时候，很多时候只需要实现部分方法，默认方法为接口中的方法提供一个默认的实现。
+  - 用default修饰符，然后就可以在接口中简单实现这些方法了。
+
+
+### Lambda表达式
+- 将一个代码块像参数一样传递到另一个对象中（定时器，响应等），这个代码块会在未来的某个时刻会被调用。
+- 对比通过传入对象来实现，Lambda表达式更优雅，使得Java支持函数式编程。
+- `(参数列表) -> {代码块}`，Lambda没有返回类型
+- **函数式接口**：只含有一个抽象方法的接口，可以把Lambda赋值给一个函数式接口变量
+
+```
+@FunctionalInterface // 可选，用于编译检查是否只有一个抽象方法，类似Override
+public interface FunctionalInterface<T>{
+	void accept(T t);
+}
+```
+
+- Lambda表达式可以转化为对应的接口形式
+- Lambda表达式实际上是一个**函数**，传入之后会在某处会被执行，而不是一个对象。
+- 所以不能将一个Lambda表达式赋值给一个Object变量，因为Object不是一个函数式接口
+- 当我们想使用Lambda的时候，需要为其提供一个函数式接口
+- 方法引用:`rrays.sort(strings,String::compareToIgnoreCase)`,其实也很好理解，因为Lambda是函数
+- Comparator函数式接口
+
+##### Lambda表达式的变量作用域
+- Lambda中的变量
+  - 代码块中声明的，自己的
+  - 参数传入的
+  - **自由变量**，如何保证Lambda执行的时候，这些外部的变量还存在，没有被销毁？
+- 捕获，闭包：Lambda会存储自由变量的值，称为捕获。Lambda的代码块以及自由变量组成一个**闭包**
+- **Lambda中只能引用值不会改变的变量/常量**
+- **Lambda的体和块有相同的作用域**，所以块中不能定义与Lambda同一块中的已有变量。
+
+### 内部类
+> [博客](https://www.cnblogs.com/dolphin0520/p/3811445.html)
+##### 成员内部类
+- 定义在另一个类中的类。
+- **并不是每个外部类的对象实例都有一个内部类实例**，内部类实例对象是由外部类的方法来触发创建的。
+- 特点：
+  - **内部类可以访问外部类的实例域**，因为内部类具有外部类的引用。
+    - 访问的外部实例域必须是final，这个和Lambda类似。
+    - 内部类对象中有一个隐式引用，它指向创建它的外部类对象（在内部类的构造函数中记录）。
+  - 局部内部类对同一个包中的其他类不可见
+  - 创建内部类的前提是必须先创建外部类
+
+
+##### 局部内部类
+- 定义在一个方法或者一个作用域里面的类，它和成员内部类的区别在于局部内部类的访问仅限于方法内或者该作用域内。
+- 和局部变量一样，不能有public、protected、private以及static修饰符的。
+
+##### 匿名内部类
+- 只创建这个类的对象，但并没有为该类提供名字。
+- 使用的最多，在编写事件监听的代码时使用匿名内部类不但方便，而且使代码更加容易维护。
+- 一般只用在事件监听，接口回调等
+
+```java
+ActionListener listener = new AcitonListener() {
+  public void actionPerformed(ActionEvent event){
+    // do something
+  }
+}
+```
+- 类似的，在安卓SDK，Swing中用的很多，能够简化代码。但有了Lambda，还能够更简化。
+
+##### 静态内部类
+- 多一个static关键字，不需要依附外部类而存在。
+
+##### 对比Lambda表达式和匿名内部类
+- 匿名内部类仍然是类，编译会生成.class文件，Lambda通过invokedynamic指令插入到主类对应的位置执行
+- 对于匿名类，关键词 this 解读为匿名类，而对于 Lambda 表达式，关键词 this 解读为写就 Lambda 的外部类。
+- Java 编译器编译 Lambda 表达式并将他们转化为类里面的私有函数
+
+### Java异常

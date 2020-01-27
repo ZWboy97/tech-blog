@@ -1,7 +1,8 @@
 ---
 title: 大脑Cache系列--Java快速梳理，方便随时load到大脑，减少低级bug (一)
 categories:
-  - [技术],[大脑Cache]
+  - [技术]
+  - [大脑Cache]
 tags:
   - Java
 date: 2020-01-02 17:39:52
