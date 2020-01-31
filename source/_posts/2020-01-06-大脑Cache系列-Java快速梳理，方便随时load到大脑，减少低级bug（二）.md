@@ -1,9 +1,10 @@
 ---
 title: '大脑Cache系列 -- Java快速梳理，方便随时load到大脑，减少低级bug（二） '
 categories:
-  - 技术
+  - [技术]
+  - [大脑Cache]
 tags:
-  - 未知
+  - Java
 date: 2020-01-06 15:50:06
 ---
 
@@ -19,7 +20,6 @@ date: 2020-01-06 15:50:06
 - Java接口
 - Lambda表达式
 - Java异常
-- Java并发
 
 <!--more-->
 
@@ -271,3 +271,87 @@ ActionListener listener = new AcitonListener() {
 - Java 编译器编译 Lambda 表达式并将他们转化为类里面的私有函数
 
 ### Java异常
+##### 异常层次结构
+
+```java
+- Throwable
+  - Error
+    - Java运行时系统内部错误，以及资源耗尽错误
+    - 应用程序无法抛出，由系统自动抛出，必然导致程序终止
+  - Exception
+    - IOExpection
+      - 与程序无关，而与IO等有关的错误
+    - RuntimeException
+      - 由程序本身错误导致的异常（数组越界，null指针，错误类型转换）
+```
+##### 受查与非受查异常
+- **非受查异常**：Error以及RuntimeException，不需要显示声明，因为这些异常是可以努力避免的，处理它们比消除它们要好多了。
+- **受查异常**：IOException，**编译器会检查程序是否为这类异常提供了异常处理器**，需要在程序中显示声明
+- 声明受查异常
+  - 一个方法不仅可以告诉编译器参数和返回值，还可以告诉编译器可能存在的异常
+  - 什么时候需要给方法声明受查异常
+    - 1.方法的内部调用了某个抛出受查异常的方法
+    - 2.方法内部通过throw抛出了一个受查异常
+
+```java
+// 声明受查异常，是throws不是throw，因为可以是一个异常列表
+public void readFileFunc(File file) throws FileNotFoundException { }
+// 抛出一个异常
+throw new Exception();
+```
+
+##### 异常捕获
+- try-catch语句
+  - 若try子句中没有异常则跳过catch子句，程序正常返回。
+  - try子句中发生错误，终止try子句执行，**程序无返回值**。
+    - 若catch子句能够捕获异常，则直接执行catch子句中的处理语句。
+    - 若catch子句无法捕获，则将该异常传递到上级调用方法来处理。
+- 处理策略
+  - 对于知道如何处理的受检异常，则直接捕获处理
+  - 对于不知道如何处理的受检异常，则传递到调用方进行处理
+  - 传递一个异常，需要在方法后添加`throws`关键字，告知调用方，提供需要的对应的异常处理器
+- 捕获多个异常
+
+```java
+try {
+  ...
+} catch(FileNotFoundException e){
+  ...
+} catch(IOException e){
+
+}
+```
+- 再此抛出异常链，`e.initCause(pre_e)`
+
+##### finally子句
+- 无论是否抛出异常，都会执行
+- finally子句中也可能抛出异常，最好将try-catch和try-finally解耦
+
+```java
+try {
+  try{  // 内部try用于释放资源
+    ...
+  } finally {
+    io.close();
+  }
+} catch (IOExpection){
+  // error message
+}
+```
+- 带资源的try，自动解决资源释放处理问题
+
+```java
+try (Resource res = ...){
+  res...
+}// 执行完毕之后，会自动调用res.close()
+```
+
+##### 使用异常须知
+- 异常的开销比较大，不要使用异常来实现正常的业务。只在异常情况下使用异常
+- 不要过于细分异常
+- 不要压制异常，便于分析程序错误
+
+### 断言
+- 断言机制允许在测试期间向代码中插入一些检查语句，代码发布之后，会自动移除
+- 关键字，assert
+- 一般用不到
