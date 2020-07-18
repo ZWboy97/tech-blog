@@ -11,7 +11,7 @@ date: 2020-01-02 17:39:52
 ### 背景
 
 > - Java程序常常会遇到一些蛋疼的bug，最后发现，都是在一些很基础的方面造成的。大量的时间花在调试代码找低级bug上是十分没有性价比的。所以，再系统梳理下Java，是十分必要的。
-> - 已经反复学习和使用Java多次了，但只要有段时间没用Java之后，每次使用前都想要重头再梳理一遍。本文章将更注重Java只是的系统性，而不是细节性。
+> - 已经反复学习和使用Java多次了，但只要有段时间没用Java之后，每次使用前都想要重头再梳理一遍。本文章将更注重Java知识的系统性，而不是细节性。
 > - 本文是本人大脑的专属Cache，所以逻辑上可能只有我自己能够看懂，见谅。
 
 ### 一、目录
@@ -21,24 +21,28 @@ date: 2020-01-02 17:39:52
 
 <!--more-->
 
-### 二、语法
-> - 虽然没那么重要，但既然系统学Java技术了，就得了解下吧。
+### 二、基础语法
+
 > - 其实还是有很多基础知识，是自己平时写代码的时候没有注意到的，而这很容易导致一些低级bug，耗费大量的调试时间。
 
-##### 基础
-- 编译命令: javac Main.java
-- 运行:java Main 
+##### 命令
+- 编译命令: javac Main.java，.java代码成为.class字节码。
+  - JIT编译器：编译与解释共存，JIT能够将热点代码直接编译成机器码，直接再JVM上执行。
+- 运行:java Main， JVM加载字节码，解释成机器码执行。
 - 版本：java -version
 
 ##### 8种基本类型
-- 整数：byte，short，int，long
-- 浮点：float，double
-- Unicode编码的char字符类型
-- boolean
+- 整数：byte(8)，short(16)，int(32)，long(64)
+- 浮点：float(32)，double(64)
+- Unicode编码的char（16位，两个字节），相当于一个整型值（ASCII）
+- boolean（1）
+- 因为JVM的存在，各数据类型的取值范围与具体的机器是无关的。
+- 基础数据类型存储在栈中，不存储在堆上。
+
 
 ##### 整型
-- java的整形均是有符号的，需要会计算整型的数据范围
-- **注意：在java中，为了保障移植性，整型的范围与实际的机器无关（C和C++中整型范围和目标平台是相关的），JVM解决了不同机器整型之间的差别。**
+- java的整形均是有**符号的**，计算整型的数据范围
+- 注意：在java中，为了保障移植性，**整型的范围与实际的机器无关（C和C++中整型范围和目标平台是相关的）**，JVM解决了不同机器整型之间的差别。
 - byte：1字节，一般很少用，用在底层文件处理，或者占用存储空间的大数组
 - short：2字节，和byte用处类似
 - int：4字节，最常用
@@ -53,28 +57,29 @@ date: 2020-01-02 17:39:52
 - 特殊浮点数值（一般用不到）
   - 正无穷大：Double.POSITIVE_INFINITY
   - 负无穷大: Double.NEGATIVE_INFINITY
-  - 非数字: Double.NaN, 判断用Double.isNaN(n),不能用 == 号（所有非数值都是不相等的）
+  - 非数字: Double.NaN, 判断用Double.isNaN(n),不能用 == 号
 
 ##### 字符类型char
 - Java的char采用Unicode编码
-- 'a',"A"的区别
-- 码点与代码单元
+- 占用两个字节
+- 'A',"A"的区别：前者是字符类型常量，占两个字节，后者是字符串常量，存储在堆上。
 
 ##### boolean
 - **和C++不一样，整型和boolean之间不能相互转换**
 
 ##### 大数值 BigInteger BigDecimal
-- 不是一个java类型，而是一个java对象，可以表示任意精度的整型和浮点数
-- 无法通过运算符计算，需要通过方法进行运算
+- 不是一个java基础类型，而是一个java对象，可以表示任意精度的整型和浮点数。
+- **无法通过运算符计算，需要通过对应的方法进行运算。**
+- 一般可以用在金额的计算。
 
 ##### 变量
 - 声明->初始化->使用
-- Java变量在使用之前必须要进行初始化，否则会编译报错
+- Java变量在使用之前必须要进行初始化，否则会编译报错。
 
-##### 常量与类常量
+##### 常量与类常量（静态常量）
 - final表示常量，只能被赋值一次，且声明的时候必须初始化
 - 常量名推荐使用全大写,`final int NUMBER = 10;`
-- static final，类常量，可以在类中额多个方法中使用
+- static final，类常量，可以在类中多个方法中使用
 - 注意：与C++不同，常量不是通过const声明的，Java中const是保留字，但没有实际作用。
 
 ##### 常用的Math静态方法
@@ -91,31 +96,36 @@ date: 2020-01-02 17:39:52
 - 自定义枚举类型
 
 ```
-enum Size {
-  SMALL, LARGE, EXTRA_LARGE
-};
+  enum Size {
+    SMALL, LARGE, EXTRA_LARGE
+  };
 ```
 - 使用
 
 ```
-Size size = Size.SMALL;
+  Size size = Size.SMALL;
 ```
 
-##### 字符串
-- 不是一个基础类型，而是一个预定义类
-- **Java 的字符串是不可变的，对字符串的修改，实际上是创建了一个新的String对象，目的是为了复用共享字符串**
-- 对字符串修改的需求没有对字符串进行比较的需求大
+##### 字符串String类型
+- 不是Java的基础类型，而是一个预定义类。
 - **和C++不同，Java中的String不是字符数组，而是一个对象，可以理解为char*指针**
-- 字符串比较：一定要使用equal(str)方法，而不能使用 == 来判断
-  - 因为Java没有像C++那样，重载了==运算符，==判断的是两个字符串变量是否引用的是同一个位置的。
-  - 所以 == 判断的结果是未知的，常常会导致隐藏bug
+- Java 的字符串是**不可变的**，对字符串的修改，实际上是创建了一个新的String对象，目的是为了复用和共享存在堆上的字符串**
+  - 源码中字符串内容有final修饰。
+- 对字符串修改的需求没有对字符串进行比较的需求大。
+  - 比较：equals
+  - 修改：StringBuffer，StringBuilder
+- 字符串比较：要使用equal(str)方法，而不能使用 == 来判断
+  - 因Java没有像C++那样，重载了==运算符。
+  - ==实际判断的是两个字符串变量是否引用的是同一个存储位置，而不是内容。
+  - 所以 == 判断的结果是未知的，常常会导致隐藏bug。
 - 字符串判空,**区分空串和Null串**
   - if(str != null && str.length()!=0)
+- 当创建 String 类型的对象时，虚拟机会在常量池中查找有没有已经存在的值和要创建的值相同的对象，如果有就把它赋给当前引用。如果没有就在常量池中重新创建一个 String 对象。
 - 码点与代码单元
+  - **最好避免直接操作char，这太底层了**
   - str.length()返回的是代码单元个数
   - str.codePointCount(0,str.length()),统计的是码点数量
   - str.charAt(n),获取n位置的代码单元
-  - **最好避免直接操作char，这太底层了**
   - 关于代码单元与码点：
 
 ##### 常用的String API
@@ -134,8 +144,9 @@ Stirng trim(), 删除字符串开始和结尾的空格
 String join('divider',CharSequence...emements)
 ```
 
-##### StringBuilder字符串构造
-- 在构造字符串的时候，每次连接字符串都需要构建一个新的String对象，效率比较低，推荐使用StringBuilder
+##### StringBuilder，StringBuffer字符串构造
+- 在有构造字符串或者修改字符串的情况下，不适合使用String，因为是不可变的。
+- 推荐使用StringBuilder（单线程）或者StringBuffer（多线程）。
 - 使用方式
 
 ```
@@ -149,20 +160,20 @@ builder.delete(start,end)
 builder.insert(offset,string)
 ```
 - StringBuilder的前身是StringBuffer，但是StringBuffer的效率要低一些，因为它是线程安全的，允许多线程操作
-- 而StringBuilder是非线程安全的，一般在单线程的应用中使用StringBuilder
+- 而StringBuilder是非线程安全的，一般在单线程的应用。而在并发中使用StringBuffer
 - 他们的API是一样的
 
 ##### 读取输入
 - 从控制台读取基础数据类型
 
 ```
-Scanner scan = new Scanner(System.in); //创建scanner，并与标准输入关联,System.in的类型为InputStream
-scan.nextLine();
-scan.next();
-scan.nextInt();
-scan.nextDouble();
-scan.hasNext();
-scan.hasNextInt();
+  Scanner scan = new Scanner(System.in); //创建scanner，并与标准输入关联,System.in的类型为InputStream
+  scan.nextLine();
+  scan.next();
+  scan.nextInt();
+  scan.nextDouble();
+  scan.hasNext();
+  scan.hasNextInt();
 ```
 - 从控制台读取密码
 
@@ -226,9 +237,10 @@ out.println("hhh");
 
 ### 类与对象
 - 类与对象的关系：模板，实例
-- 面向对象编程的含义：封装
 - 类之间的三种关系
-- 对象与对象变量之间的关系
+- 对象与对象变量（对象引用）
+  - 对象实例存储在堆上，对象引用存储在栈中。
+  - 一个对象实例可以被多个变量引用，一个变量可以引用0或1个对象实例。
 - 预定义类（String，Date，LocalDate）与自定义类
 - Java多源文件的使用：Java编译器内置了类似UNIX的make功能，在编译的时候，能够自动查找需要依赖的其他类，有class文件就直接使用，没有则查找java文件并编译。
 - Java中，所有的方法都必须包含在类中
@@ -239,9 +251,13 @@ out.println("hhh");
 - main()方法是一个静态方法，它不对任何对象进行操作，负责在程序启动的时候创建对象。
 - 每个类都可以实现一个main方法，用来进行单元测试，在执行完整Application时候，每个单元中的main并不会执行。
 
-##### 对象构造
+##### 对象构造与构造函数
 - 构造函数：Java的对象都是在堆上构造的，通过new操作符在堆上创建新对象。构造函数在new对象的时候被调用。
-- 与C++中对象的构造做区分，C++中支持在栈和堆上创建对象，Java对象与后者类似。
+  - 与C++中对象的构造做区分，C++中支持在栈和堆上创建对象，Java对象与后者类似。
+- 构造函数不允许被重写Override
+- 推荐在自定义多参数构造函数的时候，提供一个空参数的构造函数
+  - 因为若子类在构造函数中没有通过super方式调用父类构造函数，Java会默认调用父类的无参数构造函数。若父类没有空构造函数，则会编译错误。
+
 
 ##### 对象域的初始化
 - 三种域初始化方式：在构造器中初始化，声明中初始化，在初始化块

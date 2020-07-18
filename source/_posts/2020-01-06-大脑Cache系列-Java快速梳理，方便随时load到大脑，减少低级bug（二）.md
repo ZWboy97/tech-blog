@@ -93,20 +93,18 @@ if(child instanceof Manager){ // 不需要判null
 ##### Object类
 - 所有类的超类
 - Java中只有基本类型不是对象，其他都是对象，都具有Object的方法和数据
-- equals():判断两个对象是否是否有相同的引用（**同一个new出来的对象**）
-  - **在没重写的情况下，与==的效果是一致的，判断的是不内容上的相等。**
+- equals():
+  - **在没重写的情况下，与==的效果是一致的，判断的是地址而不是实际的内容。**
   - String，Integer等类已经对equals()进行重写了。
-  - 我们在实现自己类的时候，需要自己来实现equals。（很套路，很多IDE是支持一键自动生成的）
+  - 我们在实现自己类的时候，需要自己来实现equals。（在实现自己实现equals后，还需要实现hashcode）（很套路，很多IDE是支持一键自动生成的）
 - Class getClass()：获得该对象所属于的类
   - class.getName获得类名
 - hashcode(): 返回对象的散列值
-  - 重要的是：**两个对象，如果equals为正，那么hashcode一定要保证相同**
-  - Object中值为对象的存储地址(因为Object的equals就是判断地址的呀)
-  - 字符串的散列码是由字符串内容导出的（因为String的equals参考了内容呀）
-  - 一般的hashcode都是综合参考了存储地址和对象数据的
+  - 规定：**两个对象，如果equals为true，那么hashcode一定要保证相同**，即相等的对象有相同的hashcode。
+  - 默认的的hashcode都是参考了存储地址的，所以两个对象，默认的hashcode一定不一样，即便他们值可能是一样的。
   - 因此**当自己实现equals的时候，对应的也要实现hashcode，来保证重要规则**
-  - **两个相等的对象必须要返回相同的hashcode码，但是相等的hashcode不一定是相等的变量**，（再判断一下equals嘛）
-  - java对象的hashcode设计是为了配合基于散列的集合,添加元素的时候，通过hashcode和equals来快速判断对象是否已经存在（比纯equals循环要好多了）
+  - **两个相等的对象必须要返回相同的hashcode码，但是相等的hashcode不一定是相等的变量**，（hashcode的计算方式）
+  - java对象的hashcode设计是为了配合基于散列的集合,添加元素的时候，通过hashcode和equals来快速判断对象是否已经存在（大大减少了equals次数，比纯equals循环要好多了）
 - toString():将对象以字符串形式输出，常用于日志之类。Object中默认的为类名+Hash值
 
 
@@ -166,25 +164,25 @@ printf(String fmt, Object...args);
 - getClass(),Name.class
 
 ### 接口
-- 接口，用来描述类具有什么功能，不需要具体实现方法
-- 但如果某个类尊从了某个接口，那么就必须要履行对应的服务（实现接口）
-- **接口中所有方法都自动是public，不需要额外加public修饰符（但在实现接口的类中，方法前必须加public）**，因为要能被任意类实现呀
-- 接口中**不能含有实例域（接口没有实例）**，但可以含有**常量**，对于方法，**接口中不能提供实现**
-- 接口不是类，不能通过new被实例化。
-- 但是存在**接口变量，且接口变量可以引用实现了它的类的对象**。
-- 接口之间也是支持继承的
+- 抽象类是对类的抽象，而接口是对行为的抽象。
+- **接口中所有方法都自动是public，不需要额外加public修饰符（但在实现接口的类中，方法前必须加public）**
+- 接口中**不能含有实例域（接口没有实例）**，但可以含有**常量和静态常量**
+- 对于方法，**接口中不能提供实现**（Java8后支持默认实现）
+- 接口不是类，不能通过new被实例化成对象。
+- 不存在接口实例化的对象，但是存在**接口变量，且接口变量可以引用实现了它的类的对象**。
+- 接口支持继承另一个接口
 
 
 ```java
-public interface Comparable { // java.lang.Comparable
-  int compareTo(Object obj);
-}
-
-public Test implements Comparable {
-  public int compareTo(Object obj) { // 实现类时候，需要public
-    return Double.compare(salary,obj.salary); // 相减比较不适合浮点数
+  public interface Comparable { // java.lang.Comparable
+    int compareTo(Object obj);
   }
-}
+
+  public Test implements Comparable {
+    public int compareTo(Object obj) { // 实现类时候，需要public
+      return Double.compare(salary,obj.salary); // 相减比较不适合浮点数
+    }
+  }
 ```
 
 - Java常用的内置接口
@@ -326,6 +324,7 @@ try {
 ##### finally子句
 - 无论是否抛出异常，都会执行
 - finally子句中也可能抛出异常，最好将try-catch和try-finally解耦
+- 当try和finally中都有return的时候，finally中的return先执行，且最终的返回值会被finally覆盖。即，如果finally中有return，try中的return无意义
 
 ```java
 try {
