@@ -45,8 +45,8 @@ highlight:
   tab_replace:
 
 prism_plugin:
-  mode: 'preprocess'    # realtime/preprocess
-  theme: 'dark'
+  mode: 'realtime'    # realtime/preprocess
+  theme: 'tomorrow'
   line_number: true    # default false
   custom_css:
   
